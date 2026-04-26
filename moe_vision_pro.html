@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoE Vision Pro — مکسچر آف ایکسپرٹس انجن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --darker: #020617;
+            --glass: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Nastaliq Urdu', system-ui, sans-serif;
+            background: var(--darker);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Layout */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 10px 60px rgba(99, 102, 241, 0.5); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-light) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Controls */
+        .control-section h3 {
+            font-size: 1.1rem;
+            color: var(--primary-light);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 24px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+
+        .control-group .value-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Custom Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--primary);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            transition: transform 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Neural Network Canvas */
+        .viz-container {
+            position: relative;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        #neuralCanvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .viz-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .viz-overlay h4 {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .viz-overlay p {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        /* Expert Cards */
+        .experts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .expert-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.05));
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .expert-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .expert-card.active {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.05));
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
+        }
+
+        .expert-card.active::before {
+            opacity: 1;
+            background: linear-gradient(90deg, var(--success), var(--accent));
+        }
+
+        .expert-card.inactive {
+            opacity: 0.4;
+            transform: scale(0.95);
+        }
+
+        .expert-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .expert-name {
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .expert-function {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .expert-output {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .expert-gate {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .gate-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .gate-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .expert-card.active .gate-bar-fill {
+            background: linear-gradient(90deg, var(--success), var(--accent));
+        }
+
+        /* Formula Section */
+        .formula-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+            text-align: left;
+            direction: ltr;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .formula-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .formula-highlight {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Result Box */
+        .result-hero {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .result-label {
+            position: relative;
+            font-size: 1rem;
+            color: var(--primary-light);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .result-value {
+            position: relative;
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .compare-card {
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .compare-card.moe {
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .compare-card.dense {
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .compare-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .compare-card.moe .compare-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .compare-card.dense .compare-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .compare-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .compare-metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-bar {
+            width: 100px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .metric-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* Real World Section */
+        .world-section {
+            margin-top: 40px;
+        }
+
+        .world-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .world-card {
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .world-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .world-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .world-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .world-desc {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Step Animation */
+        .steps-container {
+            margin-top: 24px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateX(20px);
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .step-content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px 20px;
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .step-detail {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 60px 20px 30px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 100;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="app-container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-badge">✨ ورژن 2.0 — جدید ترین ٹیکنالوجی</div>
+            <h1>MoE Vision Pro</h1>
+            <p>مکسچر آف ایکسپرٹس کا حیرت انگیز اور بصری جائزہ — دیکھیں کہ کیسے AI کے بڑے ماڈلز صرف چند سیکنڈ میں دنیا بدل رہے ہیں</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Sidebar Controls -->
+            <div class="glass-card">
+                <div class="control-section">
+                    <h3>⚙️ کنٹرول پینل</h3>
+
+                    <div class="control-group">
+                        <label>
+                            <span>کل ماہرین (N)</span>
+                            <span class="value-badge" id="nValue">4</span>
+                        </label>
+                        <input type="range" id="numExperts" min="2" max="8" value="4" oninput="updateSystem()">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span>Top-K منتخب</span>
+                            <span class="value-badge" id="kValue">2</span>
+                        </label>
+                        <input type="range" id="topK" min="1" max="4" value="2" oninput="updateSystem()">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span>ان پٹ ویلیو (x)</span>
+                            <span class="value-badge" id="xValue">5.0</span>
+                        </label>
+                        <input type="range" id="inputX" min="0" max="10" step="0.1" value="5.0" oninput="updateSystem()">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span>انیمیشن رفتار</span>
+                            <span class="value-badge" id="speedValue">1x</span>
+                        </label>
+                        <input type="range" id="animSpeed" min="0.5" max="3" step="0.5" value="1" oninput="updateSpeed()">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="randomizeAndAnimate()">
+                        🎲 نیا حساب کتاب
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetSystem()">
+                        🔄 ری سیٹ
+                    </button>
+                </div>
+
+                <div class="stats-grid" style="margin-top: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">🧠</div>
+                        <div class="stat-value" id="activeExperts">2</div>
+                        <div class="stat-label">فعال ماہرین</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📉</div>
+                        <div class="stat-value" id="sparsity">50%</div>
+                        <div class="stat-label">اسپارسٹی</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="computation">75%</div>
+                        <div class="stat-label">بچت</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Visualization -->
+            <div>
+                <!-- Neural Network Viz -->
+                <div class="glass-card" style="padding: 0; overflow: hidden;">
+                    <div class="viz-container">
+                        <canvas id="neuralCanvas"></canvas>
+                        <div class="viz-overlay">
+                            <h4>🧠 نیورل نیٹ ورک فلو</h4>
+                            <p>ریئل ٹائم ڈیٹا سٹریم</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formula -->
+                <div class="formula-box" id="formulaDisplay">
+                    y = Σ<sub>i∈TopK</sub> g<sub>i</sub>(x) · f<sub>i</sub>(x)
+                </div>
+
+                <!-- Experts Grid -->
+                <div class="glass-card">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-light);">🎯 ماہرین کی کارکردگی</h3>
+                    <div class="experts-grid" id="expertsContainer"></div>
+                </div>
+
+                <!-- Steps -->
+                <div class="glass-card steps-container" id="stepsContainer">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-light);">📋 مرحلہ وار عمل</h3>
+                    <div id="stepsList"></div>
+                </div>
+
+                <!-- Final Result -->
+                <div class="result-hero" style="margin-top: 24px;">
+                    <div class="result-label">🎯 حتمی آؤٹ پٹ</div>
+                    <div class="result-value" id="finalOutput">0.0000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+            <h2 class="section-title">⚖️ MoE بمقابلہ روایتی ماڈل</h2>
+            <div class="comparison-grid">
+                <div class="glass-card compare-card moe">
+                    <span class="compare-badge">✅ MoE ماڈل</span>
+                    <div class="compare-metric">
+                        <span>پیرامیٹرز</span>
+                        <span style="color: var(--success); font-weight: 700;">1.6T</span>
+                    </div>
+                    <div class="compare-metric">
+                        <span>فعال پیرامیٹرز</span>
+                        <span style="color: var(--success); font-weight: 700;">200B</span>
+                    </div>
+                    <div class="compare-metric">
+                        <span>سپیڈ</span>
+                        <div class="metric-bar"><div class="metric-bar-fill" style="width: 90%; background: var(--success);"></div></div>
+                    </div>
+                    <div class="compare-metric">
+                        <span>بجلی کی بچت</span>
+                        <div class="metric-bar"><div class="metric-bar-fill" style="width: 85%; background: var(--success);"></div></div>
+                    </div>
+                    <div class="compare-metric">
+                        <span>لاگت</span>
+                        <span style="color: var(--success); font-weight: 700;">$0.002</span>
+                    </div>
+                </div>
+
+                <div class="glass-card compare-card dense">
+                    <span class="compare-badge">❌ روایتی ماڈل</span>
+                    <div class="compare-metric">
+                        <span>پیرامیٹرز</span>
+                        <span style="color: var(--danger); font-weight: 700;">200B</span>
+                    </div>
+                    <div class="compare-metric">
+                        <span>فعال پیرامیٹرز</span>
+                        <span style="color: var(--danger); font-weight: 700;">200B</span>
+                    </div>
+                    <div class="compare-metric">
+                        <span>سپیڈ</span>
+                        <div class="metric-bar"><div class="metric-bar-fill" style="width: 40%; background: var(--danger);"></div></div>
+                    </div>
+                    <div class="compare-metric">
+                        <span>بجلی کی بچت</span>
+                        <div class="metric-bar"><div class="metric-bar-fill" style="width: 15%; background: var(--danger);"></div></div>
+                    </div>
+                    <div class="compare-metric">
+                        <span>لاگت</span>
+                        <span style="color: var(--danger); font-weight: 700;">$0.015</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real World Applications -->
+        <div class="world-section">
+            <h2 class="section-title">🌍 حقیقی دنیا میں استعمال</h2>
+            <div class="world-grid">
+                <div class="glass-card world-card">
+                    <div class="world-icon">🌐</div>
+                    <div class="world-title">Google Translate & Gemini</div>
+                    <div class="world-desc">
+                        Google کے MoE ماڈلز 100+ زبانوں کو ایک ساتھ سمجھتے ہیں۔ ہر زبان کا اپنا ماہر ہوتا ہے جو صرف اسی زبان کے جملے پر کام کرتا ہے، جس سے ترجمہ 40% زیادہ درست ہوتا ہے۔
+                    </div>
+                </div>
+
+                <div class="glass-card world-card">
+                    <div class="world-icon">🏥</div>
+                    <div class="world-title">طبی تشخیص (Medical AI)</div>
+                    <div class="world-desc">
+                        ہسپتالوں میں MoE ماڈلز مختلف ماہرین کے ذریعے سرطان، دل کی بیماری، اور آنکھوں کے امراض کی تشخیص کرتے ہیں۔ ایک ماڈل میں 100+ ماہرین ہوتے ہیں جو ہر عارضے میں ماہر ہوتے ہیں۔
+                    </div>
+                </div>
+
+                <div class="glass-card world-card">
+                    <div class="world-icon">🚗</div>
+                    <div class="world-title">خودکار گاڑیاں (Tesla FSD)</div>
+                    <div class="world-desc">
+                        Tesla کے خودکار نظام میں الگ الگ ماہرین ہوتے ہیں: ایک سڑک کی لائنوں کے لیے، دوسرا پیدل چلنے والوں کے لیے، تیسرا سگنلز کے لیے۔ اس سے گاڑی 60% تیز فیصلے لیتی ہے۔
+                    </div>
+                </div>
+
+                <div class="glass-card world-card">
+                    <div class="world-icon">🎮</div>
+                    <div class="world-title">گیمنگ AI</div>
+                    <div class="world-desc">
+                        OpenAI کے Dota 2 بوٹس میں ہر ہیرو کے لیے الگ ماہر ہوتا تھا۔ یہ بوٹ دنیا کے بہترین پلیئرز کو ہرا چکا ہے کیونکہ ہر صورتحال کے لیے مخصوص حکمت عملی استعمال کرتا ہے۔
+                    </div>
+                </div>
+
+                <div class="glass-card world-card">
+                    <div class="world-icon">📈</div>
+                    <div class="world-title">اسٹاک مارکیٹ پریڈکشن</div>
+                    <div class="world-desc">
+                        وول اسٹریٹ کی کمپنیاں MoE ماڈلز استعمال کرتی ہیں جہاں ایک ماہر ٹیکنیکل انیلسیس، دوسرا نیوز سینٹیمنٹ، اور تیسرا معاشی اشاریے دیکھتا ہے۔ اس سے پریڈکشن 35% بہتر ہوتی ہے۔
+                    </div>
+                </div>
+
+                <div class="glass-card world-card">
+                    <div class="world-icon">🛰️</div>
+                    <div class="world-title">موسمیات اور موسمی تبدیلی</div>
+                    <div class="world-desc">
+                        ناسا اور یورپی موسمیاتی ادارے MoE ماڈلز استعمال کرتے ہیں جہاں الگ الگ ماہرین سمندر، ہوا، اور زمین کے درجہ حرارت کا تجزیہ کرتے ہیں۔ طوفانوں کی پیشن گوئی 48 گھنٹے پہلے ممکن بنتی ہے۔
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>MoE Vision Pro — تعلیمی مقاصد کے لیے تیار کردہ 🚀</p>
+            <p style="margin-top: 10px; font-size: 0.85rem;">یہ ماڈل Mixture of Experts کی طاقت کو سمجھنے کے لیے ایک بصری ٹول ہے</p>
+        </div>
+    </div>
+
+    <script>
+        // Global State
+        let experts = [];
+        let gateScores = [];
+        let animationSpeed = 1;
+        let canvas, ctx;
+        let particles = [];
+        let animationId;
+
+        // Expert configurations
+        const expertConfigs = [
+            { icon: '📐', name: 'لکیری ماہر', func: '2x+1', color: '#6366f1' },
+            { icon: '📊', name: 'کوآڈریٹک', func: 'x²', color: '#ec4899' },
+            { icon: '🌊', name: 'سائن ویو', func: 'sin(x)×10', color: '#06b6d4' },
+            { icon: '📉', name: 'لاگرتھمک', func: 'ln(x+1)×5', color: '#10b981' },
+            { icon: '📈', name: 'ایکسپونینشل', func: 'e^(x/5)', color: '#f59e0b' },
+            { icon: '🎲', name: 'کیوبک', func: 'x³/10', color: '#8b5cf6' },
+            { icon: '🔢', name: 'اسکوئر روٹ', func: '√x×5', color: '#ef4444' },
+            { icon: '🎯', name: 'ٹینجینٹ', func: 'tan(x/5)×5', color: '#14b8a6' }
+        ];
+
+        // Initialize
+        window.onload = function() {
+            initParticles();
+            initCanvas();
+            updateSystem();
+            animateCanvas();
+        };
+
+        function initParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 20 + 's';
+                p.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(p);
+            }
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('neuralCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+
+        // Math functions
+        function softmax(arr) {
+            const max = Math.max(...arr);
+            const exps = arr.map(x => Math.exp(x - max));
+            const sum = exps.reduce((a, b) => a + b, 0);
+            return exps.map(x => x / sum);
+        }
+
+        function generateExpertOutput(expertId, x) {
+            const functions = [
+                (x) => x * 2 + 1,
+                (x) => x * x,
+                (x) => Math.sin(x) * 10,
+                (x) => Math.log(x + 1) * 5,
+                (x) => Math.exp(x/5),
+                (x) => x * x * x / 10,
+                (x) => Math.sqrt(x) * 5,
+                (x) => Math.tan(x/5) * 5
+            ];
+            return functions[expertId % functions.length](x);
+        }
+
+        function generateGateLogits(numExperts, x) {
+            const logits = [];
+            for (let i = 0; i < numExperts; i++) {
+                const baseLogit = Math.sin(x + i * 1.5) * 2 + (Math.random() - 0.5) * 0.3;
+                logits.push(baseLogit);
+            }
+            return logits;
+        }
+
+        function getTopKIndices(scores, k) {
+            return scores
+                .map((score, index) => ({ score, index }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, k)
+                .map(item => item.index);
+        }
+
+        // Main update function
+        function updateSystem() {
+            const n = parseInt(document.getElementById('numExperts').value);
+            const k = parseInt(document.getElementById('topK').value);
+            const x = parseFloat(document.getElementById('inputX').value);
+
+            // Update badges
+            document.getElementById('nValue').textContent = n;
+            document.getElementById('kValue').textContent = k;
+            document.getElementById('xValue').textContent = x.toFixed(1);
+
+            // Validate k <= n
+            if (k > n) {
+                document.getElementById('topK').value = n;
+                return updateSystem();
+            }
+
+            // Initialize experts
+            const logits = generateGateLogits(n, x);
+            gateScores = softmax(logits);
+
+            experts = [];
+            for (let i = 0; i < n; i++) {
+                experts.push({
+                    id: i + 1,
+                    output: generateExpertOutput(i, x),
+                    gateLogit: logits[i],
+                    gateScore: gateScores[i],
+                    config: expertConfigs[i % expertConfigs.length]
+                });
+            }
+
+            const topKIndices = getTopKIndices(gateScores, k);
+
+            // Update formula
+            let formula = 'y = ';
+            const terms = [];
+            for (let i = 0; i < n; i++) {
+                if (topKIndices.includes(i)) {
+                    terms.push(`<span class="formula-highlight">g<sub>${i+1}</sub>(x)·f<sub>${i+1}</sub>(x)</span>`);
+                } else {
+                    terms.push(`g<sub>${i+1}</sub>(x)·f<sub>${i+1}</sub>(x)`);
+                }
+            }
+            formula += terms.join(' + ');
+            document.getElementById('formulaDisplay').innerHTML = formula;
+
+            // Update expert cards
+            updateExpertCards(topKIndices);
+
+            // Update steps
+            updateSteps(topKIndices, k);
+
+            // Update stats
+            document.getElementById('activeExperts').textContent = k;
+            const sparsity = ((n - k) / n * 100).toFixed(0);
+            document.getElementById('sparsity').textContent = sparsity + '%';
+            document.getElementById('computation').textContent = ((1 - k/n) * 100).toFixed(0) + '%';
+
+            // Calculate final output
+            let finalSum = 0;
+            topKIndices.forEach(idx => {
+                finalSum += experts[idx].gateScore * experts[idx].output;
+            });
+
+            animateValue('finalOutput', parseFloat(document.getElementById('finalOutput').textContent), finalSum, 800);
+        }
+
+        function updateExpertCards(topKIndices) {
+            const container = document.getElementById('expertsContainer');
+            container.innerHTML = '';
+
+            experts.forEach((expert, idx) => {
+                const isTopK = topKIndices.includes(idx);
+                const card = document.createElement('div');
+                card.className = `expert-card ${isTopK ? 'active' : 'inactive'}`;
+
+                const gatePercent = (expert.gateScore * 100).toFixed(1);
+
+                card.innerHTML = `
+                    <div class="expert-icon">${expert.config.icon}</div>
+                    <div class="expert-name">${expert.config.name}</div>
+                    <div class="expert-function">f(x) = ${expert.config.func}</div>
+                    <div class="expert-output">${expert.output.toFixed(2)}</div>
+                    <div class="expert-gate">
+                        گیٹ: ${expert.gateScore.toFixed(4)} (${gatePercent}%)
+                        <div class="gate-bar">
+                            <div class="gate-bar-fill" style="width: ${gatePercent}%"></div>
+                        </div>
+                    </div>
+                    ${isTopK ? '<div style="color: var(--success); font-weight: 700; margin-top: 10px; font-size: 0.9rem;">✓ منتخب</div>' : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateSteps(topKIndices, k) {
+            const container = document.getElementById('stepsList');
+            container.innerHTML = '';
+
+            const steps = [
+                {
+                    title: 'گیٹ لاگٹس کا حساب (Pre-Softmax)',
+                    detail: experts.map((e, i) => `z${i+1} = ${e.gateLogit.toFixed(3)}`).join(' | ')
+                },
+                {
+                    title: 'Softmax نارملائزیشن',
+                    detail: experts.map((e, i) => `g${i+1}(x) = ${e.gateScore.toFixed(4)}`).join(' | ')
+                },
+                {
+                    title: `Top-${k} ماہرین کا انتخاب`,
+                    detail: `منتخب: [${topKIndices.map(i => `E${i+1}`).join(', ')}]`
+                },
+                {
+                    title: 'ماہرین کے آؤٹ پٹ',
+                    detail: experts.map((e, i) => `f${i+1}(x) = ${e.output.toFixed(2)}`).join(' | ')
+                },
+                {
+                    title: 'وزن دار مجموعہ',
+                    detail: topKIndices.map(idx => {
+                        const e = experts[idx];
+                        return `${e.gateScore.toFixed(4)} × ${e.output.toFixed(2)} = ${(e.gateScore * e.output).toFixed(4)}`;
+                    }).join(' + ')
+                }
+            ];
+
+            steps.forEach((step, i) => {
+                const div = document.createElement('div');
+                div.className = 'step-item';
+                div.style.animationDelay = `${i * 0.1}s`;
+                div.innerHTML = `
+                    <div class="step-number">${i + 1}</div>
+                    <div class="step-content">
+                        <div class="step-title">${step.title}</div>
+                        <div class="step-detail">${step.detail}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            const minTimer = 50;
+            let stepTime = Math.abs(Math.floor(duration / (range * 100)));
+            stepTime = Math.max(stepTime, minTimer);
+
+            let startTime = new Date().getTime();
+            let endTime = startTime + duration;
+            let timer;
+
+            function run() {
+                let now = new Date().getTime();
+                let remaining = Math.max((endTime - now) / duration, 0);
+                let value = end - (remaining * range);
+                obj.textContent = value.toFixed(4);
+                if (value == end) {
+                    clearInterval(timer);
+                }
+            }
+
+            timer = setInterval(run, stepTime);
+            run();
+        }
+
+        function randomizeAndAnimate() {
+            const n = parseInt(document.getElementById('numExperts').value);
+            document.getElementById('inputX').value = (Math.random() * 10).toFixed(1);
+            updateSystem();
+        }
+
+        function resetSystem() {
+            document.getElementById('numExperts').value = 4;
+            document.getElementById('topK').value = 2;
+            document.getElementById('inputX').value = 5.0;
+            updateSystem();
+        }
+
+        function updateSpeed() {
+            animationSpeed = parseFloat(document.getElementById('animSpeed').value);
+            document.getElementById('speedValue').textContent = animationSpeed + 'x';
+        }
+
+        // Canvas Animation
+        function animateCanvas() {
+            if (!ctx) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const n = experts.length || 4;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Draw input node
+            drawNode(centerX, 40, 'ان پٹ', '#06b6d4', 30);
+
+            // Draw gate network
+            drawNode(centerX, 100, 'گیٹ نیٹ ورک', '#ec4899', 25);
+
+            // Draw connections from input to gate
+            drawConnection(centerX, 55, centerX, 85, '#06b6d4', 2);
+
+            // Draw expert nodes
+            const expertY = 200;
+            const spacing = canvas.width / (n + 1);
+
+            for (let i = 0; i < n; i++) {
+                const x = spacing * (i + 1);
+                const isActive = experts.length > 0 && gateScores[i] > 0.1;
+                const color = isActive ? '#10b981' : '#475569';
+                const radius = isActive ? 25 : 20;
+
+                drawNode(x, expertY, `E${i+1}`, color, radius);
+
+                // Connection from gate to expert
+                const opacity = experts.length > 0 ? gateScores[i] : 0.5;
+                drawConnection(centerX, 115, x, expertY - radius, color, opacity * 3);
+
+                // Output value
+                if (experts.length > 0) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(experts[i].output.toFixed(1), x, expertY + 45);
+                }
+            }
+
+            // Draw output node
+            drawNode(centerX, 320, 'آؤٹ پٹ', '#6366f1', 30);
+
+            // Connections from experts to output
+            for (let i = 0; i < n; i++) {
+                const x = spacing * (i + 1);
+                const opacity = experts.length > 0 ? gateScores[i] : 0.3;
+                if (opacity > 0.05) {
+                    drawConnection(x, 220, centerX, 295, '#6366f1', opacity * 3);
+                }
+            }
+
+            // Animated particles along connections
+            if (Math.random() < 0.1 * animationSpeed) {
+                particles.push({
+                    x: centerX,
+                    y: 100,
+                    targetX: spacing * (Math.floor(Math.random() * n) + 1),
+                    targetY: 200,
+                    progress: 0,
+                    speed: 0.02 * animationSpeed
+                });
+            }
+
+            particles = particles.filter(p => {
+                p.progress += p.speed;
+                if (p.progress >= 1) return false;
+
+                const currX = p.x + (p.targetX - p.x) * p.progress;
+                const currY = p.y + (p.targetY - p.y) * p.progress;
+
+                ctx.beginPath();
+                ctx.arc(currX, currY, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+
+                return true;
+            });
+
+            requestAnimationFrame(animateCanvas);
+        }
+
+        function drawNode(x, y, label, color, radius) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color + '40';
+            ctx.fill();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = `bold ${radius * 0.5}px Inter`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+        }
+
+        function drawConnection(x1, y1, x2, y2, color, width) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = Math.max(width, 0.5);
+            ctx.globalAlpha = Math.min(width / 3, 0.8);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+    </script>
+</body>
+</html>
